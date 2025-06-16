@@ -40,7 +40,11 @@ with tabs[2]:
     if st.button("הפק PDF"):
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Arial", size=12)
+
+        # טען פונט בעברית (פעם אחת בלבד)
+        pdf.add_font("FreeSans", "", "fonts/FreeSans.ttf", uni=True)
+        pdf.set_font("FreeSans", size=14)
+
         pdf.cell(200, 10, txt="תג שמיש - Impact Labs", ln=True, align="C")
 
         pdf.output("tag.pdf")
