@@ -2,8 +2,12 @@ import streamlit as st
 
 st.set_page_config(page_title="תג שמיש - MJF", layout="wide")
 
-# טאב ראשון - פרטי אצווה
-tab1, = st.tabs(["📦 הזנת אצווה"])
+# 🧠 אחסון מידע באחסון זמני של סטרימליט
+if "parts_data" not in st.session_state:
+    st.session_state.parts_data = []
+
+# 🟦 טאב 1 – הזנת אצווה
+tab1, tab2 = st.tabs(["📦 הזנת אצווה", "📐 שרטוטים ומידות"])
 
 with tab1:
     st.header("📦 הזנת פרטי אצווה")
@@ -25,20 +29,20 @@ with tab1:
 
     num_parts = st.number_input("כמה סוגי חלקים יש באצווה?", min_value=1, step=1)
 
-    parts_data = []
+    st.session_state.parts_data = []
     for i in range(int(num_parts)):
         with st.expander(f"חלק {i+1}"):
             part_name = st.text_input(f"שם חלק #{i+1}", key=f"name_{i}")
             quantity = st.number_input(f"כמות חלקים מסוג זה", min_value=1, step=1, key=f"qty_{i}")
-            parts_data.append((part_name, quantity))
+            st.session_state.parts_data.append((part_name, quantity))
 
-    st.success("בסיום שלב זה, עבור לטאב הבא להזנת שרטוט ומידות ✏️ (נוסיף בהמשך)")
-tab1, tab2 = st.tabs(["📦 הזנת אצווה", "📐 שרטוטים ומידות"])
+    st.info("בסיום שלב זה, עבור לטאב הבא להזנת שרטוט ומידות ✏️")
 
+# 🟨 טאב 2 – שרטוטים ומידות
 with tab2:
     st.header("📐 הזנת שרטוטים ומידות קריטיות")
 
-    for i, (part_name, quantity) in enumerate(parts_data):
+    for i, (part_name, quantity) in enumerate(st.session_state.parts_data):
         with st.expander(f"🔧 חלק: {part_name}"):
             uploaded_drawing = st.file_uploader(f"העלה שרטוט PDF עבור {part_name}", type=["pdf"], key=f"pdf_{i}")
 
