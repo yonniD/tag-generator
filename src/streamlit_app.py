@@ -89,3 +89,61 @@ with tab3:
                 go_nogo = st.checkbox("בדיקת Go/No-Go", key=f"qa_gonogo_{i}_{s}")
                 functional = st.checkbox("בדיקה פונקציונלית", key=f"qa_func_{i}_{s}")
                 st.markdown("---")
+# ✅ טאב סיום והנפקה עם יצירת PDF ושליחה למייל
+import streamlit as st
+from fpdf import FPDF
+import smtplib
+from email.message import EmailMessage
+
+# 📤 פונקציית שליחת מייל
+
+def send_email_with_pdf(receiver_email, pdf_file_path):
+    sender_email = "yonni@impactlabs.tech"
+    app_password = "smsirhfycitcltxv"
+
+    msg = EmailMessage()
+    msg["Subject"] = "תג שמיש - חלקים שהוזנו"
+    msg["From"] = sender_email
+    msg["To"] = receiver_email
+    msg.set_content("מצורף תג השמיש בקובץ PDF.")
+
+    with open(pdf_file_path, "rb") as f:
+        pdf_data = f.read()
+        msg.add_attachment(pdf_data, maintype="application", subtype="pdf", filename="tag_sheet.pdf")
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login(sender_email, app_password)
+        smtp.send_message(msg)
+
+# 📄 פונקציית יצירת PDF פשוט לדוגמה
+
+def generate_pdf(parts_data):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt="תג שמיש - חלקים", ln=True, align='C')
+    pdf.ln(10)
+
+    for part_name, quantity in parts_data:
+        pdf.cell(200, 10, txt=f"חלק: {part_name} | כמות: {quantity}", ln=True)
+
+    pdf.output("tag_sheet.pdf")
+
+# 📌 טאב אחרון באפליקציה
+
+tab1, tab2, tab3, tab4 = st.tabs(["📦 הזנת אצווה", "📐 שרטוטים", "✅ QA", "📤 סיום והנפקה"])
+
+with tab4:
+    st.header("📤 סיום והנפקה")
+
+    st.markdown("הפק PDF ושלח למייל שלך")
+    receiver = st.text_input("כתובת מייל למשלוח", value="yonni@impactlabs.tech")
+
+    if st.button("📄 הפק PDF ושלח למייל"):
+        # דוגמה לדאטה – צריך לחבר את זה לדאטה האמיתית שלך
+        parts_data = [("חלק 1", 10), ("חלק 2", 5)]
+
+        generate_pdf(parts_data)
+        send_email_with_pdf(receiver, "tag_sheet.pdf")
+        st.success("✅ PDF הופק ונשלח למייל")
+
