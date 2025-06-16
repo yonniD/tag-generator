@@ -2,16 +2,14 @@ import streamlit as st
 
 st.set_page_config(page_title="תג שמיש - MJF", layout="wide")
 
-# 🧠 אחסון מידע באחסון זמני של סטרימליט
 if "parts_data" not in st.session_state:
     st.session_state.parts_data = []
 
-# 🟦 טאב 1 – הזנת אצווה
-tab1, tab2 = st.tabs(["📦 הזנת אצווה", "📐 שרטוטים ומידות"])
+# 🟦 טאב 1 – אצווה
+tab1, tab2, tab3 = st.tabs(["📦 הזנת אצווה", "📐 שרטוטים ומידות", "🧪 בקרת איכות QA"])
 
 with tab1:
     st.header("📦 הזנת פרטי אצווה")
-
     col1, col2 = st.columns(2)
 
     with col1:
@@ -59,3 +57,35 @@ with tab2:
             st.markdown("🔎 סוגי בדיקות נוספות לחלק זה:")
             functional_check = st.checkbox("בדיקה פונקציונלית", key=f"func_{i}")
             go_nogo_check = st.checkbox("בדיקת Go/No-Go", key=f"gonogo_{i}")
+
+# 🟥 טאב 3 – בקרת איכות QA
+with tab3:
+    st.header("🧪 בקרת איכות - QA")
+    st.markdown("בחר כמה חלקים לבדוק לפי כמות הייצור (לפי תקן L2):")
+
+    # טבלת תבחינים לפי כמות
+    sampling_table = {
+        (2, 8): 2,
+        (9, 15): 3,
+        (16, 25): 5,
+        (26, 50): 8
+    }
+
+    for i, (part_name, quantity) in enumerate(st.session_state.parts_data):
+        with st.expander(f"QA עבור חלק: {part_name}"):
+            # קביעת מספר דגימות לפי הטבלה
+            sample_size = 1
+            for (min_q, max_q), sample in sampling_table.items():
+                if min_q <= quantity <= max_q:
+                    sample_size = sample
+                    break
+
+            st.markdown(f"🔍 יש לבדוק {sample_size} חלקים מתוך {quantity}")
+
+            for s in range(sample_size):
+                st.markdown(f"🔬 דגימה #{s+1}")
+                passed = st.checkbox("✅ תקין", key=f"pass_{i}_{s}")
+                note = st.text_input("הערה", key=f"note_{i}_{s}")
+                go_nogo = st.checkbox("בדיקת Go/No-Go", key=f"qa_gonogo_{i}_{s}")
+                functional = st.checkbox("בדיקה פונקציונלית", key=f"qa_func_{i}_{s}")
+                st.markdown("---")
